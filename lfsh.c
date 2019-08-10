@@ -546,6 +546,7 @@ void change_dir( char *foodir )
 }
 
 
+
 void change_mode()
 {
                  clrscr(); home(); 
@@ -663,6 +664,7 @@ int main( int argc, char *argv[])
 
          else if ( ch == 15 )   // CTRL+O to change dir with argument
          {
+            printf( "\n" );
             change_dir( strmsg );
             strncpy( strmsg, "", PATH_MAX );
          }
@@ -693,8 +695,16 @@ int main( int argc, char *argv[])
             printf( "\n" );
          }
 
+
          else if ( ch == 10 )
          {   
+           if ( strcmp( strmsg, "" ) == 0 ) 
+           {
+              printf( "\n" );
+           }
+           else if ( strcmp( strmsg, "" ) != 0 ) 
+           {
+
              fdsp = 1; goj = 0; 
              for( goi = 0 ;  ( goi <= strlen(strmsg)-1 ) && ( strmsg[ goi ] != ' ' ) ; goi++)
                   strintcmd[goj++]=strmsg[goi];
@@ -708,7 +718,23 @@ int main( int argc, char *argv[])
              }
              strintarg[goj]='\0';
 
-             if ( strcmp( strintcmd , "cd" ) == 0 ) 
+
+             if ( strcmp( strmsg , "cd .." ) == 0 ) 
+	     { 
+                  printf( "\n" );
+                  change_dir( ".." );
+                  printf( "\n" );
+                  strncpy( strmsg, "", PATH_MAX );
+	     } 
+             else if ( strcmp( strmsg , "cd" ) == 0 ) 
+	     { 
+                  printf( "\n" );
+                  change_dir( getenv( "HOME" ) );
+                  printf( "\n" );
+                  strncpy( strmsg, "", PATH_MAX );
+	     } 
+
+             else if ( strcmp( strintcmd , "cd" ) == 0 ) 
 	     { 
                   printf( "\n  (cd to %s..)\n",  strintarg );
 	          change_dir( strintarg );
@@ -746,20 +772,6 @@ int main( int argc, char *argv[])
 	          printf( "\n" ); 
 	          printf( "<Press Key>\n" ); 
 	          getchar();
-	     } 
-
-
-             else if ( strcmp( strmsg , "cd .." ) == 0 ) 
-	     { 
-                  printf( "\n" );
-                  change_dir( ".." );
-                  printf( "\n" );
-                  strncpy( strmsg, "", PATH_MAX );
-	     } 
-
-             else if ( strcmp( strmsg , "cd" ) == 0 ) 
-	     { 
-                  change_dir( getenv( "HOME" ) );
 	     } 
 
              else if ( strcmp( strmsg , "!pwd" ) == 0 ) 
@@ -802,6 +814,7 @@ int main( int argc, char *argv[])
                 else if ( app_debug == 2 ) { printf( "\n<Press Key>\n" ); getchar(); }   
                 else if ( app_debug == 3 ) { printf( "\n" ); }
 	     } 
+            }
          }
 
 
