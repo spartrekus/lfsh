@@ -63,7 +63,11 @@ int app_debug = 3;
 
 
 int rows, cols ; 
-
+int keys[10];
+char strmsglast[PATH_MAX];
+char strmsg[PATH_MAX];
+int curs_posx = 0; 
+int curs_posy = 0; 
 
 
 static struct termios oldt;
@@ -92,6 +96,304 @@ void disable_waiting_for_enter(void)
 
 
 
+
+
+
+
+
+/////////////
+char *strtrfindtail( const char *str )
+{  
+      // right side to finish
+      char ptr[ 4 * strlen( str )+1];
+      int strposmax = strlen( str );
+      int lastposchar = strposmax;
+      int firstposchar = 0;
+      int i,j=0;
+      int foundspace = 1;
+
+      /// find last char
+      foundspace = 1;
+      for( i= strposmax-1 ; i >= 0 ; i--)
+      {
+	 // find where to space
+         if ( foundspace == 1 ) 
+         if ( str[i] == ' ' ) 
+   	    lastposchar = i-1;
+
+         if ( str[i] != ' ' ) 
+           foundspace = 0;
+      } 
+
+      /// find first char
+      foundspace = 1;
+      for( i= 0 ; i <= lastposchar ; i++)
+      {
+	 // find where to space
+         if ( str[i] == ' ' ) 
+   	    firstposchar = i+1;
+      } 
+
+      // add the content, second part
+      foundspace = 1;
+      for(i= firstposchar ; i <= lastposchar ; i++)
+      {
+         if ( foundspace == 1 ) 
+         if ( ( str[i] != ' ' )  && ( str[i] != 9 ) ) //added! with 9 for a TAB!!
+          foundspace = 0;
+
+        if ( foundspace == 0 ) 
+           ptr[j++]=str[i];
+      } 
+      ptr[j]='\0';
+
+
+   char foodir[PATH_MAX];
+   strncpy( foodir, ptr, PATH_MAX );
+
+   DIR *dirp;
+   struct dirent *dp;
+   char strfind[PATH_MAX];
+   strncpy( strfind, "" , PATH_MAX );
+   dirp = opendir( "." );
+   while  ((dp = readdir( dirp )) != NULL ) 
+   {
+         if (  strcmp( dp->d_name, "." ) != 0 )
+         if (  strcmp( dp->d_name, ".." ) != 0 )
+         {     
+             if  ( ( strstr( dp->d_name , foodir ) != 0 ) 
+             && ( dp->d_name[0] == foodir[0] ) )
+             //&& ( dp->d_name[1] == foodir[1] ) )
+             {
+                 printf( "<%s>\n", dp->d_name );
+                 strncpy( strfind, dp->d_name , PATH_MAX );
+             }     
+             else 
+                printf( "%s\n", dp->d_name );
+         }
+   }
+   closedir( dirp );
+
+
+      printf( "Found: (%s)\n", strfind );
+
+      // add the content, first part
+      j = 0; 
+      for(i= 0 ; i <= firstposchar-1 ; i++)
+      {
+          ptr[j++]=str[i];
+      } 
+      //ptr[j++]=' ';
+      for( i=0 ; i <= strlen( strfind )-1 ; i++)
+          ptr[j++]=strfind[i];
+      ptr[j]='\0';
+
+      size_t siz = sizeof ptr ; 
+      char *r = malloc( sizeof ptr );
+      return r ? memcpy(r, ptr, siz ) : NULL;
+}
+
+
+
+
+
+
+char *strtrwrdhead( char *str )
+{  
+
+      // right side to finish
+      char ptr[strlen(str)+1];
+      int strposmax = strlen( str );
+      int lastposchar = strposmax;
+      int firstposchar = 0;
+      int i,j=0;
+      int foundspace = 1;
+
+      /// find last char
+      foundspace = 1;
+      for( i= strposmax-1 ; i >= 0 ; i--)
+      {
+	 // find where to space
+         if ( foundspace == 1 ) 
+         if ( str[i] == ' ' ) 
+   	    lastposchar = i-1;
+
+         if ( str[i] != ' ' ) 
+           foundspace = 0;
+      } 
+
+      /// find first char
+      foundspace = 1;
+      for( i= 0 ; i <= lastposchar ; i++)
+      {
+	 // find where to space
+         if ( str[i] == ' ' ) 
+   	    firstposchar = i+1;
+      } 
+
+      // add the content, second part
+      foundspace = 1;
+      for(i= firstposchar ; i <= lastposchar ; i++)
+      {
+         if ( foundspace == 1 ) 
+         if ( ( str[i] != ' ' )  && ( str[i] != 9 ) ) //added! with 9 for a TAB!!
+          foundspace = 0;
+
+        if ( foundspace == 0 ) 
+           ptr[j++]=str[i];
+      } 
+      ptr[j]='\0';
+
+      size_t siz = sizeof ptr ; 
+      char *r = malloc( sizeof ptr );
+      return r ? memcpy(r, ptr, siz ) : NULL;
+}
+
+
+
+
+
+
+
+char *strtrwrdtail( char *str )
+{  
+
+      // right side to finish
+      char ptr[strlen(str)+1];
+      int strposmax = strlen( str );
+      int lastposchar = strposmax;
+      int firstposchar = 0;
+      int i,j=0;
+      int foundspace = 1;
+
+      /// find last char
+      foundspace = 1;
+      for( i= strposmax-1 ; i >= 0 ; i--)
+      {
+	 // find where to space
+         if ( foundspace == 1 ) 
+         if ( str[i] == ' ' ) 
+   	    lastposchar = i-1;
+
+         if ( str[i] != ' ' ) 
+           foundspace = 0;
+      } 
+
+      /// find first char
+      foundspace = 1;
+      for( i= 0 ; i <= lastposchar ; i++)
+      {
+	 // find where to space
+         if ( str[i] == ' ' ) 
+   	    firstposchar = i+1;
+      } 
+
+      // add the content, second part
+      foundspace = 1;
+      for(i= firstposchar ; i <= lastposchar ; i++)
+      {
+         if ( foundspace == 1 ) 
+         if ( ( str[i] != ' ' )  && ( str[i] != 9 ) ) //added! with 9 for a TAB!!
+          foundspace = 0;
+
+        if ( foundspace == 0 ) 
+           ptr[j++]=str[i];
+      } 
+      ptr[j]='\0';
+
+      size_t siz = sizeof ptr ; 
+      char *r = malloc( sizeof ptr );
+      return r ? memcpy(r, ptr, siz ) : NULL;
+}
+
+
+
+
+
+///
+char *strtrim( char *str )
+{  
+      // right side to to finish
+      char ptr[strlen(str)+1];
+      int strposmax = strlen( str );
+      int lastposchar = strposmax;
+      int i,j=0;
+      int foundspace = 1;
+
+      /// find last char
+      foundspace = 1;
+      for( i= strposmax-1 ; i >= 0 ; i--)
+      {
+         //printf( "|%d-%d-%c| ", i , lastposchar , str[i] );
+	 // find where to space
+         if ( foundspace == 1 ) 
+         if ( str[i] == ' ' ) 
+   	    lastposchar = i-1;
+
+         if ( str[i] != ' ' ) 
+           foundspace = 0;
+      } 
+
+      // add the content
+      foundspace = 1;
+      for(i=0; i <= lastposchar ; i++)
+      {
+        if ( foundspace == 1 ) 
+         if ( ( str[i] != ' ' )  && ( str[i] != 9 ) ) //added! with 9 for a TAB!!
+          foundspace = 0;
+
+        if ( foundspace == 0 ) 
+           ptr[j++]=str[i];
+      } 
+      ptr[j]='\0';
+
+      size_t siz = sizeof ptr ; 
+      char *r = malloc( sizeof ptr );
+      return r ? memcpy(r, ptr, siz ) : NULL;
+}
+
+
+
+
+
+char searchitem[PATH_MAX];
+void listdir(const char *name, int indent)
+{
+    DIR *dir;
+    struct dirent *entry;
+
+    if (!(dir = opendir(name)))
+        return;
+
+    while ((entry = readdir(dir)) != NULL) 
+    {
+        if (entry->d_type == DT_DIR) 
+	{
+            char path[1024];
+
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+                continue;
+
+            snprintf( path, sizeof(path), "%s/%s", name, entry->d_name);
+
+            listdir( path, indent + 2);
+        } 
+	else 
+	{
+	    if ( strstr( entry->d_name , searchitem ) != 0 ) 
+	    {
+              printf("%s/%s\n", name , entry->d_name );
+	    }
+        }
+    }
+    closedir(dir);
+}
+
+
+
+
+
+
 void nls()
 { 
    DIR *dirp;
@@ -108,16 +410,45 @@ void nls()
 
 
 
-int keys[10];
-char strmsglast[PATH_MAX];
-char strmsg[PATH_MAX];
-int curs_posx = 0; 
-int curs_posy = 0; 
+
+
+
+///////////////////////////////////////
+///////////////////////////////////////
+///////////////////////////////////////
+void find_item( const char *foodir )
+{
+   DIR *dirp;
+   struct dirent *dp;
+   dirp = opendir( "." );
+   while  ((dp = readdir( dirp )) != NULL ) 
+   {
+         if (  strcmp( dp->d_name, "." ) != 0 )
+         if (  strcmp( dp->d_name, ".." ) != 0 )
+         {     
+             if ( ( strstr( dp->d_name , foodir ) != 0 ) 
+             && ( dp->d_name[0] == foodir[0] ) 
+             && ( dp->d_name[1] == foodir[1] ) )
+             {
+                 printf( "<%s>\n", dp->d_name );
+                 strncpy( strmsg , dp->d_name , PATH_MAX );
+             }     
+             else 
+                printf( "%s\n", dp->d_name );
+         }
+   }
+   closedir( dirp );
+}
 
 
 
 
-int mgetchar(  ) 
+
+
+
+
+
+int mgetchar() 
 {
    int fooch, i; 
    fooch = getchar();
@@ -189,6 +520,20 @@ void printmsg( char *inittxt, char *foomsg )
 
 
 
+//void find_file( char *foodir )
+//{
+//} 
+
+
+
+void change_dir( char *foodir )
+{
+      char cwddir[PATH_MAX];
+      chdir( foodir );
+      printf( "%s", getcwd( cwddir, PATH_MAX ) );
+}
+
+
 void change_mode()
 {
                  clrscr(); home(); 
@@ -239,7 +584,7 @@ int main( int argc, char *argv[])
          if ( curs_posx <= 0 ) curs_posx = 0;
          if ( curs_posx >= ( strlen( strmsg )+1) )  curs_posx = strlen( strmsg );
 
-         if ( app_debug == 99 ) 
+         if ( app_debug == 199 ) 
          {
             // pro module, (non available in free demo)
          }
@@ -286,7 +631,7 @@ int main( int argc, char *argv[])
             printf( "Keys: %d\n" , keys[i] ); 
             printf( "Degug mode (d): %d\n" , app_debug );
             printf( "Degug str     (S): '%s'\n" , strmsg );
-            printf( "Degug strlen  (d): '%d'\n" , strlen(strmsg) );
+            printf( "Degug strlen  (d): '%lu'\n" , strlen(strmsg) );
             printf( "Curs(X,Y,MX)(S): %d %d\n" , curs_posx , curs_posy );
             printf( "Curs(C): %c\n" , strmsg[ curs_posx ] );
             printf( "\nKEY %d %c\n", ch , ch );
@@ -299,6 +644,38 @@ int main( int argc, char *argv[])
 
          if ( ch == 18 )   // CTRL+R
             change_mode();
+
+         else if ( ch == 15 )   // CTRL+O to change dir with argument
+         {
+            change_dir( strmsg );
+            strncpy( strmsg, "", PATH_MAX );
+         }
+
+         else if ( ch == 9 )   // TAB
+         {
+           if ( strmsg[ strlen( strmsg ) -1 ] != ' ' )
+           {
+            if ( strstr( strmsg , " " ) != 0 ) 
+            { 
+              strncpy( strmsg, strtrfindtail( strtrim ((  strmsg   ))  ), PATH_MAX );
+              curs_posx = strlen( strmsg );
+            }
+            else 
+            { 
+              find_item(  strmsg   ); 
+              curs_posx = strlen( strmsg );
+            }
+            printf( "\n" );
+           }
+         }
+
+         else if ( ch == 6 )   // CTRL+F to find argument
+         {
+            strncpy( searchitem, strmsg, PATH_MAX );          
+            printf( "\n" );
+            listdir( ".", 0 );
+            printf( "\n" );
+         }
 
          else if ( ch == 10 )
          {   
@@ -334,15 +711,37 @@ int main( int argc, char *argv[])
 	          getchar();
 	     } 
 
+             else if ( strcmp( strmsg , "cd .." ) == 0 ) 
+	     { 
+                  printf( "\n" );
+                  change_dir( ".." );
+                  printf( "\n" );
+                  strncpy( strmsg, "", PATH_MAX );
+	     } 
+
+             else if ( strcmp( strmsg , "cd" ) == 0 ) 
+	     { 
+                  change_dir( getenv( "HOME" ) );
+	     } 
+
+             else if ( strcmp( strmsg , "!pwd" ) == 0 ) 
+	     { 
+                  printf( "\n" );
+                  printf( "%s\n", getcwd( cwd, PATH_MAX ));
+                  printf( "\n" );
+                  strncpy( strmsg, "", PATH_MAX );
+	     } 
+
              else if ( strcmp( strmsg , "!clr" ) == 0 ) 
 	     { 
                   clrscr(); home();
+                  strncpy( strmsg, "", PATH_MAX );
 	     } 
              else if ( ( strcmp( strmsg , "!ls" ) == 0 ) ||  ( strcmp( strmsg , "!dir" ) == 0 ) )
 	     {    
 	       printf( "\n" ); 
-               printf( "=========================\n" );
                nls();  
+               strncpy( strmsg, "", PATH_MAX );
 	     }    
 	     else 
              { 
@@ -398,18 +797,23 @@ int main( int argc, char *argv[])
             else if ( ch == 79 )
             {
                ch = mgetchar();
-               if ( ch == 80 )   //F1
-               { 
+               if ( ch == 80 )      //F1
                   change_mode(); 
+
+               else if ( ch == 81 ) //F2
+	       { 
+                   strncpy( strmsg,  strtrwrdhead( strtrim( strmsg ) ) ,  PATH_MAX ); 
+                   curs_posx = strlen( strmsg );
                }
-               else if ( ch == 81 )
-	       {  strncpy( strmsg, ""  ,  PATH_MAX );    }
-               else if ( ch == 82 )
+
+               else if ( ch == 82 ) //F3
 	       {   strncpy( strmsg, strmsglast ,  PATH_MAX );   }
-               else if ( ch == 83 )
-	       {   strncpy( strmsg, ""  ,  PATH_MAX );   }
-               else if ( ch == 84 )
-	       {   strncpy( strmsg, ""  ,  PATH_MAX );   }
+
+               else if ( ch == 83 ) //F4
+	       { 
+                   strncpy( strmsg,  strtrwrdtail( strtrim( strmsg ) ) ,  PATH_MAX ); 
+                   curs_posx = strlen( strmsg );
+               }
             }
            }
          }
