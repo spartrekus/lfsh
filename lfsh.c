@@ -537,11 +537,6 @@ void printmsg( char *inittxt, char *foomsg )
 
 
 
-//void find_file( char *foodir )
-//{
-//} 
-
-
 
 void change_dir( char *foodir )
 {
