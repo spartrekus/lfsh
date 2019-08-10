@@ -154,7 +154,8 @@ char *strtrfindtail( const char *str )
    DIR *dirp;
    struct dirent *dp;
    char strfind[PATH_MAX];
-   strncpy( strfind, "" , PATH_MAX );
+   strncpy( strfind, ptr , PATH_MAX );
+
    dirp = opendir( "." );
    while  ((dp = readdir( dirp )) != NULL ) 
    {
@@ -196,13 +197,25 @@ char *strtrfindtail( const char *str )
 
 
 
-
-
-char *strtrwrdhead( char *str )
+char *strprc( const char *str )
 {  
+   int i;  int j = 0; 
+   char ptr[ 2 * strlen(str)+1];
+   for( i = 0 ;  ( i <= strlen(str)-1 ) && ( str[ i ] != ' ' ) ; i++)
+        ptr[j++]=str[i];
+   ptr[j]='\0';
+   size_t siz = sizeof ptr ; 
+   char *r = malloc( sizeof ptr );
+   return r ? memcpy(r, ptr, siz ) : NULL;
+}
 
+
+
+
+char *strtrwrdhead( const char *str )
+{  
       // right side to finish
-      char ptr[strlen(str)+1];
+      char ptr[ 2 * strlen(str)+1];
       int strposmax = strlen( str );
       int lastposchar = strposmax;
       int firstposchar = 0;
@@ -227,13 +240,17 @@ char *strtrwrdhead( char *str )
       for( i= 0 ; i <= lastposchar ; i++)
       {
 	 // find where to space
+         if ( foundspace == 1 ) 
          if ( str[i] == ' ' ) 
+         {
    	    firstposchar = i+1;
+            foundspace = 0;
+         }
       } 
 
       // add the content, second part
       foundspace = 1;
-      for(i= firstposchar ; i <= lastposchar ; i++)
+      for( i= 0 ; i <= firstposchar-2 ; i++)
       {
          if ( foundspace == 1 ) 
          if ( ( str[i] != ' ' )  && ( str[i] != 9 ) ) //added! with 9 for a TAB!!
@@ -530,7 +547,7 @@ void change_dir( char *foodir )
 {
       char cwddir[PATH_MAX];
       chdir( foodir );
-      printf( "%s", getcwd( cwddir, PATH_MAX ) );
+      printf( "Path: %s\n" , getcwd( cwddir, PATH_MAX ) );
 }
 
 
@@ -562,9 +579,13 @@ int main( int argc, char *argv[])
        return 0;
      }
 
+
      //struct winsize w; // need ioctl and unistd 
      //ioctl( STDOUT_FILENO, TIOCGWINSZ, &w );
 
+     int  goi;  int goj = 0;  int fdsp = 0;
+     char strintcmd[PATH_MAX];
+     char strintarg[PATH_MAX];
      char charo[PATH_MAX];
      char ptr[PATH_MAX];
      int ch = 0; int j, chr, i ;
@@ -679,7 +700,28 @@ int main( int argc, char *argv[])
 
          else if ( ch == 10 )
          {   
-             if ( strcmp( strmsg , "exit" ) == 0 ) 
+             fdsp = 1; goj = 0; 
+             for( goi = 0 ;  ( goi <= strlen(strmsg)-1 ) && ( strmsg[ goi ] != ' ' ) ; goi++)
+                  strintcmd[goj++]=strmsg[goi];
+             strintcmd[goj]='\0';
+
+             fdsp = 0; goj = 0; 
+             for( goi = 0 ;  ( goi <= strlen(strmsg)-1 ) ; goi++)
+             {
+               if ( fdsp == 1 ) strintarg[goj++]=strmsg[goi];
+               if ( strmsg[ goi ] == ' ' )  fdsp = 1;
+             }
+             strintarg[goj]='\0';
+
+             if ( strcmp( strintcmd , "cd" ) == 0 ) 
+	     { 
+                  printf( "\n  (cd to %s..)\n",  strintarg );
+	          change_dir( strintarg );
+	          printf( "\n" );
+	          strncpy( strmsg, ""  ,  PATH_MAX ); 
+	     } 
+
+             else if ( strcmp( strmsg , "exit" ) == 0 ) 
 	     {     strncpy( strmsg, ""  ,  PATH_MAX );   foousergam = 1;   } 
 
              else if ( strcmp( strmsg , "!exit" ) == 0 ) 
@@ -711,6 +753,7 @@ int main( int argc, char *argv[])
 	          getchar();
 	     } 
 
+
              else if ( strcmp( strmsg , "cd .." ) == 0 ) 
 	     { 
                   printf( "\n" );
@@ -737,6 +780,7 @@ int main( int argc, char *argv[])
                   clrscr(); home();
                   strncpy( strmsg, "", PATH_MAX );
 	     } 
+
              else if ( ( strcmp( strmsg , "!ls" ) == 0 ) ||  ( strcmp( strmsg , "!dir" ) == 0 ) )
 	     {    
 	       printf( "\n" ); 
@@ -803,6 +847,7 @@ int main( int argc, char *argv[])
                else if ( ch == 81 ) //F2
 	       { 
                    strncpy( strmsg,  strtrwrdhead( strtrim( strmsg ) ) ,  PATH_MAX ); 
+                   //strncpy( strmsg,  strprc( strtrim( strmsg ) ) ,  PATH_MAX ); 
                    curs_posx = strlen( strmsg );
                }
 
