@@ -101,6 +101,9 @@ void disable_waiting_for_enter(void)
 
 
 
+
+
+
 /////////////
 char *strtrfindtail( const char *str )
 {  
@@ -197,177 +200,7 @@ char *strtrfindtail( const char *str )
 
 
 
-char *strprc( const char *str )
-{  
-   int i;  int j = 0; 
-   char ptr[ 2 * strlen(str)+1];
-   for( i = 0 ;  ( i <= strlen(str)-1 ) && ( str[ i ] != ' ' ) ; i++)
-        ptr[j++]=str[i];
-   ptr[j]='\0';
-   size_t siz = sizeof ptr ; 
-   char *r = malloc( sizeof ptr );
-   return r ? memcpy(r, ptr, siz ) : NULL;
-}
 
-
-
-
-char *strtrwrdhead( const char *str )
-{  
-      // right side to finish
-      char ptr[ 2 * strlen(str)+1];
-      int strposmax = strlen( str );
-      int lastposchar = strposmax;
-      int firstposchar = 0;
-      int i,j=0;
-      int foundspace = 1;
-
-      /// find last char
-      foundspace = 1;
-      for( i= strposmax-1 ; i >= 0 ; i--)
-      {
-	 // find where to space
-         if ( foundspace == 1 ) 
-         if ( str[i] == ' ' ) 
-   	    lastposchar = i-1;
-
-         if ( str[i] != ' ' ) 
-           foundspace = 0;
-      } 
-
-      /// find first char
-      foundspace = 1;
-      for( i= 0 ; i <= lastposchar ; i++)
-      {
-	 // find where to space
-         if ( foundspace == 1 ) 
-         if ( str[i] == ' ' ) 
-         {
-   	    firstposchar = i+1;
-            foundspace = 0;
-         }
-      } 
-
-      // add the content, second part
-      foundspace = 1;
-      for( i= 0 ; i <= firstposchar-2 ; i++)
-      {
-         if ( foundspace == 1 ) 
-         if ( ( str[i] != ' ' )  && ( str[i] != 9 ) ) //added! with 9 for a TAB!!
-          foundspace = 0;
-
-        if ( foundspace == 0 ) 
-           ptr[j++]=str[i];
-      } 
-      ptr[j]='\0';
-
-      size_t siz = sizeof ptr ; 
-      char *r = malloc( sizeof ptr );
-      return r ? memcpy(r, ptr, siz ) : NULL;
-}
-
-
-
-
-
-
-
-char *strtrwrdtail( char *str )
-{  
-
-      // right side to finish
-      char ptr[strlen(str)+1];
-      int strposmax = strlen( str );
-      int lastposchar = strposmax;
-      int firstposchar = 0;
-      int i,j=0;
-      int foundspace = 1;
-
-      /// find last char
-      foundspace = 1;
-      for( i= strposmax-1 ; i >= 0 ; i--)
-      {
-	 // find where to space
-         if ( foundspace == 1 ) 
-         if ( str[i] == ' ' ) 
-   	    lastposchar = i-1;
-
-         if ( str[i] != ' ' ) 
-           foundspace = 0;
-      } 
-
-      /// find first char
-      foundspace = 1;
-      for( i= 0 ; i <= lastposchar ; i++)
-      {
-	 // find where to space
-         if ( str[i] == ' ' ) 
-   	    firstposchar = i+1;
-      } 
-
-      // add the content, second part
-      foundspace = 1;
-      for(i= firstposchar ; i <= lastposchar ; i++)
-      {
-         if ( foundspace == 1 ) 
-         if ( ( str[i] != ' ' )  && ( str[i] != 9 ) ) //added! with 9 for a TAB!!
-          foundspace = 0;
-
-        if ( foundspace == 0 ) 
-           ptr[j++]=str[i];
-      } 
-      ptr[j]='\0';
-
-      size_t siz = sizeof ptr ; 
-      char *r = malloc( sizeof ptr );
-      return r ? memcpy(r, ptr, siz ) : NULL;
-}
-
-
-
-
-
-///
-char *strtrim( char *str )
-{  
-      // right side to to finish
-      char ptr[strlen(str)+1];
-      int strposmax = strlen( str );
-      int lastposchar = strposmax;
-      int i,j=0;
-      int foundspace = 1;
-
-      /// find last char
-      foundspace = 1;
-      for( i= strposmax-1 ; i >= 0 ; i--)
-      {
-         //printf( "|%d-%d-%c| ", i , lastposchar , str[i] );
-	 // find where to space
-         if ( foundspace == 1 ) 
-         if ( str[i] == ' ' ) 
-   	    lastposchar = i-1;
-
-         if ( str[i] != ' ' ) 
-           foundspace = 0;
-      } 
-
-      // add the content
-      foundspace = 1;
-      for(i=0; i <= lastposchar ; i++)
-      {
-        if ( foundspace == 1 ) 
-         if ( ( str[i] != ' ' )  && ( str[i] != 9 ) ) //added! with 9 for a TAB!!
-          foundspace = 0;
-
-        if ( foundspace == 0 ) 
-           ptr[j++]=str[i];
-      } 
-      ptr[j]='\0';
-
-      size_t siz = sizeof ptr ; 
-      char *r = malloc( sizeof ptr );
-      return r ? memcpy(r, ptr, siz ) : NULL;
-}
 
 
 
@@ -675,7 +508,7 @@ int main( int argc, char *argv[])
            {
             if ( strstr( strmsg , " " ) != 0 ) 
             { 
-              strncpy( strmsg, strtrfindtail( strtrim ((  strmsg   ))  ), PATH_MAX );
+              strncpy( strmsg, strtrfindtail( strmsg ), PATH_MAX );
               curs_posx = strlen( strmsg );
             }
             else 
@@ -689,7 +522,7 @@ int main( int argc, char *argv[])
 
          else if ( ch == 6 )   // CTRL+F to find argument
          {
-            strncpy( searchitem, strmsg, PATH_MAX );          
+            strncpy( searchitem, strmsg , PATH_MAX );          
             printf( "\n" );
             listdir( ".", 0 );
             printf( "\n" );
@@ -758,9 +591,9 @@ int main( int argc, char *argv[])
 	     { 
                   clrscr(); home();
 	          printf( "\n" ); 
-                  printf( "=========================\n" );
-                  printf( "=== HELP ===\n" );
-                  printf( "=========================\n" );
+                  printf( "===============================\n" );
+                  printf( "=== HELP LSH (C) GNU Spart. ===\n" );
+                  printf( "===============================\n" );
 	          printf( "\n" ); 
 	          printf( "- Print the command and run it with system().\n" ); 
 	          printf( "- !help : this help.\n" );
@@ -854,8 +687,6 @@ int main( int argc, char *argv[])
 
                else if ( ch == 81 ) //F2
 	       { 
-                   strncpy( strmsg,  strtrwrdhead( strtrim( strmsg ) ) ,  PATH_MAX ); 
-                   //strncpy( strmsg,  strprc( strtrim( strmsg ) ) ,  PATH_MAX ); 
                    curs_posx = strlen( strmsg );
                }
 
@@ -864,7 +695,6 @@ int main( int argc, char *argv[])
 
                else if ( ch == 83 ) //F4
 	       { 
-                   strncpy( strmsg,  strtrwrdtail( strtrim( strmsg ) ) ,  PATH_MAX ); 
                    curs_posx = strlen( strmsg );
                }
             }
